@@ -27,11 +27,6 @@ workflow PROTEOMEGENERATOR3 {
     ch_samplesheet // channel: samplesheet read in from --input
 
     main:
-    // shorten param names called by workflows for readability
-    def yield = params.yieldsize
-    def genome = params.fasta
-    def gtf = params.gtf
-    def merge_quant = params.multisample_quant
     // begin workflow
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
@@ -80,14 +75,13 @@ workflow PROTEOMEGENERATOR3 {
             .combine(ch_NDR)
             .map(NDRmetamap)
             .combine(ref_gtf_ch)
-        BAMBU(bambu_input_ch, yield, genome)
+        BAMBU(bambu_input_ch, params.yieldsize, params.fasta)
         single_se_ch = BAMBU.out.se
         ch_versions = ch_versions.mix(BAMBU.out.versions)
     }
     // run multisample mode; assembly then quant
     merge_se_ch = Channel.empty()
-    quantonly_se_ch = Channel.empty()
-    if (!params.skip_multisample && !params.quant_only) {
+    if (!params.skip_multisample) {
         merge_ch = rc_ch
             .collect { meta, rds -> rds }
             .map { rds -> [["id": "merge"], rds] }
@@ -96,72 +90,34 @@ workflow PROTEOMEGENERATOR3 {
             .map(NDRmetamap)
             .combine(ref_gtf_ch)
         // merge_input_ch.view()
-        BAMBU_MERGE(merge_input_ch, yield, genome)
+        BAMBU_MERGE(merge_input_ch, params.yieldsize, params.fasta)
         ch_versions = ch_versions.mix(BAMBU_MERGE.out.versions)
-        // run multisample quantification
-        if (params.multisample_quant) {
-            // run bambu in quantification mode with merged gtf
-            merge_quant_ch = bam_ch
-                .combine(BAMBU_MERGE.out.gtf)
-                .map { meta1, bam, meta2, ext_gtf ->
-                    def meta = meta1.clone()
-                    meta.NDR = meta2.NDR
-                    return [meta, bam, ext_gtf]
-                }
-            // merge_quant_ch.view()
-            BAMBU_MERGE_QUANT(merge_quant_ch, yield, genome)
-            ch_versions = ch_versions.mix(BAMBU_MERGE_QUANT.out.versions)
-            // collect all summarized experiments for each NDR
-            se_ch = BAMBU_MERGE_QUANT.out.se
-                .map { meta, se ->
-                    def fmeta = meta.clone()
-                    fmeta.id = "merge"
-                    return [fmeta, se]
-                }
-                .groupTuple(by: 0)
-            SEMERGE(se_ch)
-            merge_se_ch = SEMERGE.out.se
-            ch_versions = ch_versions.mix(SEMERGE.out.versions)
-        }
-    }
-    // run quantification only
-    quantonly_se_ch = Channel.empty()
-    if (params.quant_only) {
-        input_quant_ch = bam_ch
-            .combine(ch_NDR)
-            .map(NDRmetamap)
-            .combine(ref_gtf_ch)
-        BAMBU_QUANT(input_quant_ch, [], genome)
-        ch_versions = ch_versions.mix(BAMBU_QUANT.out.versions)
-        // This works - branching based on channel contents
-        BAMBU_QUANT.out.se
-            .toList()
-            .branch {
-                multiple: it.size() > 1
-                single: it.size() == 1
+        // run bambu in quantification mode with merged gtf
+        merge_quant_ch = bam_ch
+            .combine(BAMBU_MERGE.out.gtf)
+            .map { meta1, bam, meta2, ext_gtf ->
+                def meta = meta1.clone()
+                meta.NDR = meta2.NDR
+                return [meta, bam, ext_gtf]
             }
-            .set { se_branched }
-
-        if (!params.skip_multisample) {
-            // collect all summarized experiments
-            se_quant_ch = BAMBU_QUANT.out.se
-                .map { meta, se ->
-                    def fmeta = meta.clone()
-                    fmeta.id = "merge"
-                    return [fmeta, se]
-                }
-                .groupTuple(by: 0)
-            SEQUANT_MERGE(se_quant_ch)
-            quantonly_se_ch = SEQUANT_MERGE.out.se
-            ch_versions = ch_versions.mix(SEQUANT_MERGE.out.versions)
-        }
-        else {
-            quantonly_se_ch = BAMBU_QUANT.out.se
-        }
+        // merge_quant_ch.view()
+        BAMBU_MERGE_QUANT(merge_quant_ch, params.yieldsize, params.fasta)
+        ch_versions = ch_versions.mix(BAMBU_MERGE_QUANT.out.versions)
+        // collect all summarized experiments for each NDR
+        se_ch = BAMBU_MERGE_QUANT.out.se
+            .map { meta, se ->
+                def fmeta = meta.clone()
+                fmeta.id = "merge"
+                return [fmeta, se]
+            }
+            .groupTuple(by: 0)
+        SEMERGE(se_ch)
+        merge_se_ch = SEMERGE.out.se
+        ch_versions = ch_versions.mix(SEMERGE.out.versions)
     }
     // filter for detected transcripts
     if (params.single_sample || params.multisample_quant) {
-        all_se_ch = merge_se_ch.mix(single_se_ch, quantonly_se_ch)
+        all_se_ch = merge_se_ch.mix(single_se_ch)
         BAMBU_FILTER(all_se_ch)
         ch_versions = ch_versions.mix(BAMBU_FILTER.out.versions)
     }
