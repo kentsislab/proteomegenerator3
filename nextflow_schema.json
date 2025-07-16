@@ -269,7 +269,8 @@
                 },
                 "NDR": {
                     "type": "number",
-                    "description": "set novel discovery rate for Bambu"
+                    "description": "set novel discovery rate for Bambu",
+                    "default": 0.1
                 },
                 "yieldsize": {
                     "type": "number",
