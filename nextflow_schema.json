@@ -278,7 +278,6 @@
                 },
                 "recommended_NDR": {
                     "type": "boolean",
-                    "default": true,
                     "description": "run bambu with recommended NDR"
                 },
                 "single_sample": {
@@ -288,14 +287,6 @@
                 "skip_multisample": {
                     "type": "boolean",
                     "description": "skip multisample transcript assembly"
-                },
-                "multisample_quant": {
-                    "type": "boolean",
-                    "description": "run quantification after multisample transcript assembly"
-                },
-                "quant_only": {
-                    "type": "boolean",
-                    "description": "run bambu in quantification mode only"
                 }
             }
         }

@@ -64,8 +64,13 @@ workflow PROTEOMEGENERATOR3 {
     ref_gtf_ch = channel.of(params.gtf)
     // run single sample assembly & quant with read classes
     // if only one sample is provided, run single sample mode
-    if (rc_ch.count() == 1) {
+
+    if (bam_ch.count() == 1) {
         params.single_sample = true
+        params.skip_multisample = true
+    }
+    else if (params.single_sample) {
+        // skip multisample merge if single sample mode has been specified
         params.skip_multisample = true
     }
     single_se_ch = Channel.empty()
@@ -116,11 +121,9 @@ workflow PROTEOMEGENERATOR3 {
         ch_versions = ch_versions.mix(SEMERGE.out.versions)
     }
     // filter for detected transcripts
-    if (params.single_sample || params.multisample_quant) {
-        all_se_ch = merge_se_ch.mix(single_se_ch)
-        BAMBU_FILTER(all_se_ch)
-        ch_versions = ch_versions.mix(BAMBU_FILTER.out.versions)
-    }
+    all_se_ch = merge_se_ch.mix(single_se_ch)
+    BAMBU_FILTER(all_se_ch)
+    ch_versions = ch_versions.mix(BAMBU_FILTER.out.versions)
 
     // collect versions
     softwareVersionsToYAML(ch_versions)
