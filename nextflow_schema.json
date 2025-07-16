@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/shahcompbio/bambu-nf/master/nextflow_schema.json",
-    "title": "shahcompbio/bambu-nf pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/kentsislab/proteomegenerator3/master/nextflow_schema.json",
+    "title": "kentsislab/proteomegenerator3 pipeline parameters",
     "description": "run Bambu for ONT transcript assembly",
     "type": "object",
     "$defs": {

@@ -1,4 +1,4 @@
-# shahcompbio/bambu-nf: Output
+# kentsislab/proteomegenerator3: Output
 
 ## Introduction
 

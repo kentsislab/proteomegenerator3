@@ -1,6 +1,6 @@
-# shahcompbio/bambu-nf: Documentation
+# kentsislab/proteomegenerator3: Documentation
 
-The shahcompbio/bambu-nf documentation is split into the following pages:
+The kentsislab/proteomegenerator3 documentation is split into the following pages:
 
 - [Usage](usage.md)
   - An overview of how the pipeline works, how to run it and a description of all of the different command-line flags.

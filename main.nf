@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    shahcompbio/bambu-nf
+    kentsislab/proteomegenerator3
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/shahcompbio/bambu-nf
+    Github : https://github.com/kentsislab/proteomegenerator3
 ----------------------------------------------------------------------------------------
 */
 
@@ -13,10 +13,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { BAMBU_NF  } from './workflows/bambu'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_bambu-nf_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_bambu-nf_pipeline'
-include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_bambu-nf_pipeline'
+include { PROTEOMEGENERATOR3      } from './workflows/proteomegenerator3'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
+include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,8 +38,7 @@ params.fasta = getGenomeAttribute('fasta')
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow SHAHCOMPBIO_BAMBU_NF {
-
+workflow KENTSISLAB_PROTEOMEGENERATOR3 {
     take:
     samplesheet // channel: samplesheet read in from --input
 
@@ -48,11 +47,12 @@ workflow SHAHCOMPBIO_BAMBU_NF {
     //
     // WORKFLOW: Run pipeline
     //
-    BAMBU_NF (
+    PROTEOMEGENERATOR3(
         samplesheet
     )
+
     emit:
-    multiqc_report = BAMBU_NF.out.multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = PROTEOMEGENERATOR3.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,42 +61,34 @@ workflow SHAHCOMPBIO_BAMBU_NF {
 */
 
 workflow {
-
-    main:
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
-    PIPELINE_INITIALISATION (
+    PIPELINE_INITIALISATION(
         params.version,
         params.validate_params,
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
     )
 
     //
     // WORKFLOW: Run main workflow
     //
-    SHAHCOMPBIO_BAMBU_NF (
+    KENTSISLAB_PROTEOMEGENERATOR3(
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
     // SUBWORKFLOW: Run completion tasks
     //
-    PIPELINE_COMPLETION (
+    PIPELINE_COMPLETION(
         params.email,
         params.email_on_fail,
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        SHAHCOMPBIO_BAMBU_NF.out.multiqc_report
+        KENTSISLAB_PROTEOMEGENERATOR3.out.multiqc_report,
     )
 }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/

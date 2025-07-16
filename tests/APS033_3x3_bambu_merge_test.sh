@@ -17,7 +17,7 @@ module load java/20.0.1
 ## specify params
 outdir=/data1/shahs3/users/preskaa/SarcAtlas/data/APS033_ont_transcript_assembly/3x3_bambu_merge_test
 results_dir=${outdir}/results
-pipelinedir=$HOME/bambu-nf
+pipelinedir=$HOME/proteomegenerator3
 samplesheet=${outdir}/3x3_samplesheet.csv
 fasta=/data1/shahs3/isabl_data_lake/assemblies/GRCh38-P14/GRCh38.primary_assembly.genome.fa
 gtf=/data1/shahs3/isabl_data_lake/assemblies/GRCh38-P14/gencode.v45.primary_assembly.annotation.gtf

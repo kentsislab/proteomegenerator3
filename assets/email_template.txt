@@ -1,10 +1,10 @@
 Run Name: $runName
 
 <% if (success){
-    out << "## shahcompbio/bambu-nf execution completed successfully! ##"
+    out << "## kentsislab/proteomegenerator3 execution completed successfully! ##"
 } else {
     out << """####################################################
-## shahcompbio/bambu-nf execution completed unsuccessfully! ##
+## kentsislab/proteomegenerator3 execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -27,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-shahcompbio/bambu-nf
-https://github.com/shahcompbio/bambu-nf
+kentsislab/proteomegenerator3
+https://github.com/kentsislab/proteomegenerator3

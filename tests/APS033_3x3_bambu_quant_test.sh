@@ -17,7 +17,7 @@ module load java/20.0.1
 ## specify params
 outdir=/data1/shahs3/users/preskaa/SarcAtlas/data/APS033_ont_transcript_assembly/3x3_bambu_quant_test
 results_dir=${outdir}/results
-pipelinedir=$HOME/bambu-nf
+pipelinedir=$HOME/proteomegenerator3
 samplesheet=/data1/shahs3/users/preskaa/SarcAtlas/data/APS033_ont_transcript_assembly/3x3_bambu_merge_test/3x3_samplesheet.csv
 fasta=/data1/shahs3/isabl_data_lake/assemblies/GRCh38-P14/GRCh38.primary_assembly.genome.fa
 gtf=/data1/shahs3/isabl_data_lake/assemblies/GRCh38-P14/gencode.v45.primary_assembly.annotation.gtf
@@ -27,7 +27,7 @@ cd ${outdir}
 
 # export NXF_SINGULARITY_OPTS="--bind /data1/shahs3:/data1/shahs3"
 
-nextflow run shahcompbio/bambu-nf -r master -latest \
+nextflow run kentsislab/proteomegenerator3 -r master -latest \
     -profile singularity,test \
     -work-dir ${outdir}/work \
     --outdir ${outdir} \

@@ -15,14 +15,14 @@ include { MULTIQC                             } from '../modules/nf-core/multiqc
 include { paramsSummaryMap                    } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc                } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML              } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText              } from '../subworkflows/local/utils_nfcore_bambu-nf_pipeline'
+include { methodsDescriptionText              } from '../subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow BAMBU_NF {
+workflow PROTEOMEGENERATOR3 {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
 
@@ -170,7 +170,7 @@ workflow BAMBU_NF {
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'bambu-nf_software_' + 'mqc_' + 'versions.yml',
+            name: 'proteomegenerator3_software_' + 'mqc_' + 'versions.yml',
             sort: true,
             newLine: true,
         )

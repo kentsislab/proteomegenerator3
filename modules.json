@@ -1,6 +1,6 @@
 {
-    "name": "shahcompbio/bambu-nf",
-    "homePage": "https://github.com/shahcompbio/bambu-nf",
+    "name": "kentsislab/proteomegenerator3",
+    "homePage": "https://github.com/kentsislab/proteomegenerator3",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
