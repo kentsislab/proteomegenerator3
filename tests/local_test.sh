@@ -6,8 +6,8 @@ outdir=$HOME/Library/CloudStorage/OneDrive-MemorialSloanKetteringCancerCenter/A6
 pipelinedir=$HOME/VSCodeProjects/proteomegenerator3
 samplesheet=${pipelinedir}/assets/local_samplesheet.csv
 test_data=$HOME/Library/CloudStorage/OneDrive-MemorialSloanKetteringCancerCenter/A673/APS010.1_pg3_nf_test/test_data
-ref_genome=$HOME/Library/CloudStorage/OneDrive-MemorialSloanKetteringCancerCenter/code/ref_genomes/hg38p14/GRCh38.primary_assembly.genome.fa
-gtf=$HOME/Library/CloudStorage/OneDrive-MemorialSloanKetteringCancerCenter/code/ref_genomes/hg38p14/gencode.v45.primary_assembly.annotation.gtf
+ref_genome=${test_data}/Homo_sapiens.GRCh38.dna_sm.primary_assembly_chr9_1_1000000.fa
+gtf=${test_data}/Homo_sapiens.GRCh38.91_chr9_1_1000000.gtf
 mkdir -p ${outdir}
 cd ${outdir}
 
