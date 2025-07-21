@@ -7,6 +7,7 @@ include { PREPROCESS_READS       } from '../subworkflows/local/preprocess_reads/
 include { ASSEMBLY_QUANT         } from '../subworkflows/local/assembly_quant/main'
 include { GFFREAD                } from '../modules/nf-core/gffread/main'
 include { CAT_CAT                } from '../modules/nf-core/cat/cat/main'
+include { PREDICT_ORFS           } from '../subworkflows/local/predict_orfs/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -107,11 +108,21 @@ workflow PROTEOMEGENERATOR3 {
         )
         ch_fasta = CAT_CAT.out.file_out
         ch_versions = ch_versions.mix(CAT_CAT.out.versions)
-        ch_fasta.view()
+        orf_ch = ch_fasta.join(
+            fusion_ch.map { meta, fusion_fa, fusion_table ->
+                tuple(meta, fusion_table)
+            }
+        )
+        orf_ch.view()
     }
     else {
-        ch_fasta = GFFREAD.out.gffread_fasta
+        // empty value for fusion table
+        orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
+            tuple(meta, fasta, [])
+        }
     }
+    // predict ORFs with transdecoder and output fasta for msfragger
+    PREDICT_ORFS(orf_ch, params.fusions)
     // collect versions
     softwareVersionsToYAML(ch_versions)
         .collectFile(
