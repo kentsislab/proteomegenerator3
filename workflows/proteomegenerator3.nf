@@ -100,7 +100,11 @@ workflow PROTEOMEGENERATOR3 {
             tuple(meta, fusion_fa)
         }
         // concatenate fastas
-        CAT_CAT(GFFREAD.out.gffread_fasta.join(fusion_fasta_ch))
+        CAT_CAT(
+            GFFREAD.out.gffread_fasta.join(fusion_fasta_ch).map { meta, fasta, fasta1 ->
+                tuple(meta, [fasta, fasta1])
+            }
+        )
         ch_fasta = CAT_CAT.out.file_out
         ch_versions = ch_versions.mix(CAT_CAT.out.versions)
         ch_fasta.view()
