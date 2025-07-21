@@ -3,7 +3,6 @@
 process BAMBU_ASSEMBLY {
     tag "${meta.id}_NDR_${meta.NDR}"
     label 'process_high_memory'
-    publishDir "${params.outdir}/${meta.id}/transcriptome_NDR_${meta.NDR}", mode: 'copy', overwrite: true
 
     conda "${moduleDir}/environment.yml"
     container "quay.io/shahlab_singularity/bambu:3.10.0beta"

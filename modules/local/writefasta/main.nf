@@ -1,23 +1,20 @@
-// create read classes with bambu
-process BAMBU_READCLASSES {
+// write fasta compatible with msfragger, diann, spectronaut
+process WRITEFASTA {
     tag "${meta.id}"
-    // temporary label for testing
-    label 'process_high_memory'
-    publishDir "${params.outdir}/bambu/${meta.id}", mode: 'copy', overwrite: true
+    label 'process_single'
+    publishDir "${params.outdir}/proteome/${meta.id}", mode: 'copy', overwrite: true
 
+    // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
-    container "quay.io/shahlab_singularity/bambu:HongYhong_fix"
+    container "quay.io/preskaa/biopython:v240911"
 
     input:
-    tuple val(meta), path(bam)
-    val yieldsize
-    path ref_genome
-    path ref_gtf
+    tuple val(meta), path(peps), path(jaffal_results)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.rds"), emit: rds
-    // TODO nf-core: List additional required output channels/values here
+    tuple val(meta), path("proteins.fasta"), emit: fasta
+    tuple val(meta), path("fusion_stats.csv"), optional: true, emit: fusion_stats
     path "versions.yml", emit: versions
 
     when:
@@ -26,17 +23,18 @@ process BAMBU_READCLASSES {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def fusion_args = jaffal_results ? "${jaffal_results} --fusions" : ""
     """
-    create_readclasses.R \\
-        --bam=${bam} \\
-        --yieldsize=${yieldsize} \\
-        --ref_genome=${ref_genome} \\
-        --ref_gtf=${ref_gtf}
+    write_fasta.py \\
+        ${peps} \\
+        ${fusion_args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-        bambu/HongYhong_fix: \$(Rscript -e "library(bambu); cat(as.character(packageVersion('bambu')))")
+        python: \$(python --version | sed 's/Python //g')
+        pandas: \$(python -c "import pandas; print(pandas.__version__)")
+        numpy: \$(python -c "import numpy; print(numpy.__version__)")
+        biopython: \$(python -c "import Bio; print(Bio.__version__)")
     END_VERSIONS
     """
 
@@ -48,11 +46,12 @@ process BAMBU_READCLASSES {
     //               Simple example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bcftools/annotate/main.nf#L47-L63
     //               Complex example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bedtools/split/main.nf#L38-L54
     """
+    
     touch ${prefix}.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bambu: \$(samtools --version |& sed '1!d ; s/samtools //')
+        writefasta: \$(writefasta --version)
     END_VERSIONS
     """
 }

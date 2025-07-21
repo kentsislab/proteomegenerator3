@@ -2,7 +2,6 @@
 process BAMBU_FILTER {
     tag "${meta.id}"
     label 'process_low'
-    publishDir "${params.outdir}/${meta.id}/transcriptome_NDR_${meta.NDR}", mode: 'copy', overwrite: true
 
     conda "${moduleDir}/environment.yml"
     container "quay.io/shahlab_singularity/bambu:3.10.0beta"
@@ -20,7 +19,7 @@ process BAMBU_FILTER {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def merge_args = (meta.id == "merge") ? "--merge=TRUE" : ""
+    def merge_args = meta.id == "merge" ? "--merge=TRUE" : ""
     """
     bambu_filter.R --se=${se} ${merge_args}
     cat <<-END_VERSIONS > versions.yml

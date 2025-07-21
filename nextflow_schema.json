@@ -290,6 +290,22 @@
                     "description": "skip multisample transcript assembly"
                 }
             }
+        },
+        "transdecoder_options": {
+            "title": "Transdecoder options",
+            "type": "object",
+            "description": "ORF prediction parameters",
+            "default": "",
+            "properties": {
+                "fusions": {
+                    "type": "boolean",
+                    "description": "Perform ORF prediction of fusions from JAFFAL"
+                },
+                "multiple_orfs": {
+                    "type": "boolean",
+                    "description": "allow for multiple ORFs per transcript"
+                }
+            }
         }
     },
     "allOf": [
@@ -310,12 +326,9 @@
         },
         {
             "$ref": "#/$defs/bambu_parameters"
+        },
+        {
+            "$ref": "#/$defs/transdecoder_options"
         }
-    ],
-    "properties": {
-        "fusions": {
-            "type": "boolean",
-            "description": "Perform ORF prediction of fusions from JAFFAL"
-        }
-    }
+    ]
 }
