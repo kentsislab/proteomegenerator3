@@ -33,6 +33,20 @@
                 "exists": true,
                 "pattern": "^\\S+\\.rds$",
                 "errorMessage": "transcript read classes from previous bambu runs cannot contain spaces and must have extension '.rds'"
+            },
+            "jaffal_fasta": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.fasta$",
+                "errorMessage": "fusion contigs from JAFFAL; cannot contain spaces and must have extension '.fasta'"
+            },
+            "jaffal_table": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.csv$",
+                "errorMessage": "JAFFAL results table; cannot contain spaces and must have extension '.csv'"
             }
         },
         "required": ["sample", "bam", "bai"]

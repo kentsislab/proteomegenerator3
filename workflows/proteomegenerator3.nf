@@ -3,20 +3,15 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { PREPROCESS_READS                    } from '../subworkflows/local/preprocess_reads/main'
-include { ASSEMBLY_QUANT                      } from '../subworkflows/local/assembly_quant/main'
-include { BAMBU_ASSEMBLY as BAMBU             } from '../modules/local/bambu/assembly/main'
-include { BAMBU_ASSEMBLY as BAMBU_MERGE       } from '../modules/local/bambu/assembly/main'
-include { BAMBU_ASSEMBLY as BAMBU_MERGE_QUANT } from '../modules/local/bambu/assembly/main'
-include { BAMBU_ASSEMBLY as BAMBU_QUANT       } from '../modules/local/bambu/assembly/main'
-include { SEMERGE                             } from '../modules/local/semerge/main'
-include { SEMERGE as SEQUANT_MERGE            } from '../modules/local/semerge/main'
-include { BAMBU_FILTER                        } from '../modules/local/bambu/filter/main'
-include { MULTIQC                             } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap                    } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc                } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML              } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText              } from '../subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
+include { PREPROCESS_READS       } from '../subworkflows/local/preprocess_reads/main'
+include { ASSEMBLY_QUANT         } from '../subworkflows/local/assembly_quant/main'
+include { GFFREAD                } from '../modules/nf-core/gffread/main'
+include { CAT_CAT                } from '../modules/nf-core/cat/cat/main'
+include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_proteomegenerator3_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -35,15 +30,15 @@ workflow PROTEOMEGENERATOR3 {
     // MODULE: Run samtools view to filter bam files for reads aligned to accessory chromosomes
     //
     if (!params.skip_preprocessing) {
-        input_ch = ch_samplesheet.map { meta, bam, bai, rds -> tuple(meta, bam, bai) }
+        input_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam, bai) }
         PREPROCESS_READS(input_ch, params.filter_reads, params.filter_acc_reads)
         rc_ch = PREPROCESS_READS.out.reads
         bam_ch = PREPROCESS_READS.out.bam
         ch_versions = ch_versions.mix(PREPROCESS_READS.out.versions)
     }
     else {
-        rc_ch = ch_samplesheet.map { meta, bam, bai, rds -> tuple(meta, rds) }
-        bam_ch = ch_samplesheet.map { meta, bam, bai, rds -> tuple(meta, bam) }
+        rc_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, rds) }
+        bam_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
     }
     // perform assembly & quantification with bambu
     // make an NDR channel
@@ -64,19 +59,43 @@ workflow PROTEOMEGENERATOR3 {
     }
     ref_gtf_ch = channel.of(params.gtf)
     // run sample assembly & quant with read classes
+    // if we have fusions, we need to run single sample mode
+    if (params.fusions) {
+        single_sample = true
+        println("Fusions detected; switching to single sample mode")
+    }
+    else {
+        single_sample = params.single_sample
+    }
     // count samples to make sure multisample isn't run on single samples
     sample_count = countSamples(params.input)
     // run assembly and quant with bambu
     ASSEMBLY_QUANT(
         rc_ch,
-        params.single_sample,
+        single_sample,
         sample_count,
         ch_NDR,
         ref_gtf_ch,
         bam_ch,
     )
     ch_versions = ch_versions.mix(ASSEMBLY_QUANT.out.versions)
-
+    // extract cDNA
+    ch_fasta = Channel.empty()
+    GFFREAD(ASSEMBLY_QUANT.out.gtf, params.fasta)
+    ch_versions = ch_versions.mix(GFFREAD.out.versions)
+    if (params.fusions == false) {
+        ch_fasta = GFFREAD.out.gffread_fasta
+    }
+    else {
+        fusion_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table ->
+            tuple(meta, fusion_fa, fusion_table)
+        }
+        fusion_fasta_ch = fusion_ch.map { meta, fusion_fa, fusion_table ->
+            tuple(meta, fusion_fa)
+        }
+        ch_fasta = GFFREAD.out.gffread_fasta.join(fusion_fasta_ch)
+        ch_fasta.view()
+    }
     // collect versions
     softwareVersionsToYAML(ch_versions)
         .collectFile(

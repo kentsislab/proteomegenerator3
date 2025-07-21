@@ -11,4 +11,5 @@ nextflow run ${pipelinedir}/main.nf \
     -profile arm,docker,test \
     -work-dir ${outdir}/work \
     --outdir ${outdir} \
+    --fusions \
     -resume
