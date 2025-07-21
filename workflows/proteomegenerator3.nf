@@ -60,7 +60,7 @@ workflow PROTEOMEGENERATOR3 {
     ref_gtf_ch = channel.of(params.gtf)
     // run sample assembly & quant with read classes
     // if we have fusions, we need to run single sample mode
-    if (params.fusions) {
+    if (params.fusions == true) {
         single_sample = true
         println("Fusions detected; switching to single sample mode")
     }
@@ -83,18 +83,30 @@ workflow PROTEOMEGENERATOR3 {
     ch_fasta = Channel.empty()
     GFFREAD(ASSEMBLY_QUANT.out.gtf, params.fasta)
     ch_versions = ch_versions.mix(GFFREAD.out.versions)
-    if (params.fusions == false) {
-        ch_fasta = GFFREAD.out.gffread_fasta
-    }
-    else {
-        fusion_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table ->
-            tuple(meta, fusion_fa, fusion_table)
-        }
+    if (params.fusions == true) {
+        // use this obnoxious method to make a fusion channel
+        fusion_ch = ch_samplesheet
+            .map { meta, bam, bai, rds, fusion_fa, fusion_table ->
+                tuple(meta, fusion_fa, fusion_table)
+            }
+            .combine(ch_NDR)
+            .map { meta, fusion_fa, fusion_table, NDR ->
+                def new_meta = meta.clone()
+                new_meta.NDR = NDR
+                return [new_meta, fusion_fa, fusion_table]
+            }
+        fusion_ch.view()
         fusion_fasta_ch = fusion_ch.map { meta, fusion_fa, fusion_table ->
             tuple(meta, fusion_fa)
         }
-        ch_fasta = GFFREAD.out.gffread_fasta.join(fusion_fasta_ch)
+        // concatenate fastas
+        CAT_CAT(GFFREAD.out.gffread_fasta.join(fusion_fasta_ch))
+        ch_fasta = CAT_CAT.out.file_out
+        ch_versions = ch_versions.mix(CAT_CAT.out.versions)
         ch_fasta.view()
+    }
+    else {
+        ch_fasta = GFFREAD.out.gffread_fasta
     }
     // collect versions
     softwareVersionsToYAML(ch_versions)
