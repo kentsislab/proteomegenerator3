@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { PREPROCESS_READS                    } from '../subworkflows/local/preprocess_reads/main'
+include { ASSEMBLY_QUANT                      } from '../subworkflows/local/assembly_quant/main'
 include { BAMBU_ASSEMBLY as BAMBU             } from '../modules/local/bambu/assembly/main'
 include { BAMBU_ASSEMBLY as BAMBU_MERGE       } from '../modules/local/bambu/assembly/main'
 include { BAMBU_ASSEMBLY as BAMBU_MERGE_QUANT } from '../modules/local/bambu/assembly/main'
@@ -63,59 +64,18 @@ workflow PROTEOMEGENERATOR3 {
     }
     ref_gtf_ch = channel.of(params.gtf)
     // run sample assembly & quant with read classes
-    single_se_ch = Channel.empty()
-    merge_se_ch = Channel.empty()
     // count samples to make sure multisample isn't run on single samples
     sample_count = countSamples(params.input)
-    if (params.single_sample || sample_count == 1) {
-        // combine read classes and NDR channels
-        bambu_input_ch = rc_ch
-            .combine(ch_NDR)
-            .map(NDRmetamap)
-            .combine(ref_gtf_ch)
-        BAMBU(bambu_input_ch, params.yieldsize, params.fasta)
-        single_se_ch = BAMBU.out.se
-        ch_versions = ch_versions.mix(BAMBU.out.versions)
-    }
-    else {
-        // run multisample mode; assembly then quant
-        merge_ch = rc_ch
-            .collect { meta, rds -> rds }
-            .map { rds -> [["id": "merge"], rds] }
-        merge_input_ch = merge_ch
-            .combine(ch_NDR)
-            .map(NDRmetamap)
-            .combine(ref_gtf_ch)
-        // merge_input_ch.view()
-        BAMBU_MERGE(merge_input_ch, params.yieldsize, params.fasta)
-        ch_versions = ch_versions.mix(BAMBU_MERGE.out.versions)
-        // run bambu in quantification mode with merged gtf
-        merge_quant_ch = bam_ch
-            .combine(BAMBU_MERGE.out.gtf)
-            .map { meta1, bam, meta2, ext_gtf ->
-                def meta = meta1.clone()
-                meta.NDR = meta2.NDR
-                return [meta, bam, ext_gtf]
-            }
-        // merge_quant_ch.view()
-        BAMBU_MERGE_QUANT(merge_quant_ch, params.yieldsize, params.fasta)
-        ch_versions = ch_versions.mix(BAMBU_MERGE_QUANT.out.versions)
-        // collect all summarized experiments for each NDR
-        se_ch = BAMBU_MERGE_QUANT.out.se
-            .map { meta, se ->
-                def fmeta = meta.clone()
-                fmeta.id = "merge"
-                return [fmeta, se]
-            }
-            .groupTuple(by: 0)
-        SEMERGE(se_ch)
-        merge_se_ch = SEMERGE.out.se
-        ch_versions = ch_versions.mix(SEMERGE.out.versions)
-    }
-    // filter for detected transcripts
-    all_se_ch = merge_se_ch.mix(single_se_ch)
-    BAMBU_FILTER(all_se_ch)
-    ch_versions = ch_versions.mix(BAMBU_FILTER.out.versions)
+    // run assembly and quant with bambu
+    ASSEMBLY_QUANT(
+        rc_ch,
+        params.single_sample,
+        sample_count,
+        ch_NDR,
+        ref_gtf_ch,
+        bam_ch,
+    )
+    ch_versions = ch_versions.mix(ASSEMBLY_QUANT.out.versions)
 
     // collect versions
     softwareVersionsToYAML(ch_versions)
