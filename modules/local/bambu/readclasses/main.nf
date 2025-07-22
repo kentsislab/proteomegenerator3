@@ -3,7 +3,6 @@ process BAMBU_READCLASSES {
     tag "${meta.id}"
     // temporary label for testing
     label 'process_high_memory'
-    publishDir "${params.outdir}/bambu/${meta.id}", mode: 'copy', overwrite: true
 
     conda "${moduleDir}/environment.yml"
     container "quay.io/shahlab_singularity/bambu:HongYhong_fix"
