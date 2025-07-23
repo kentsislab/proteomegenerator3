@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0dev - [2025-07-22]
+## 1.0.0dev - [2025-07-23]
 
 Initial release of kentsislab/proteomegenerator3, created with the [nf-core](https://nf-co.re/) template.
 
@@ -15,3 +15,5 @@ Initial release of kentsislab/proteomegenerator3, created with the [nf-core](htt
 - Flag to adjust NDR in bambu
 - ORF prediction for transcripts & fusions using TransDecoder
 - reformatting of fasta for use with MSFragger, DIA-NN, and Spectronaut
+- nf-test and test datasets
+- updated README.md
