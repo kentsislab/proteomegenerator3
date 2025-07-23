@@ -3,26 +3,26 @@ library(bambu)
 library(optparse)
 ## load in commandline args
 option_list = list(
-  make_option("--rds", type="character", default=NULL, 
+  make_option("--rds", type="character", default=NULL,
               help="bambu read classes", metavar="character"),
-  make_option("--yieldsize", type="character", default=1e5, 
+  make_option("--yieldsize", type="character", default=1e5,
               help="limits number of reads processed at once", metavar="character"),
-  make_option("--NDR", type="numeric", default=NULL, 
+  make_option("--NDR", type="numeric", default=NULL,
               help="bambu NDR; modulates FDR", metavar="character"),
-  make_option("--quant", type="logical", default=TRUE, 
+  make_option("--quant", type="logical", default=TRUE,
               help="whether to run quantification", metavar="logical"),
-  make_option("--discovery", type="logical", default=TRUE, 
+  make_option("--discovery", type="logical", default=TRUE,
               help="whether to run quantification", metavar="logical"),
-  make_option("--ncore", type="numeric", default=1, 
+  make_option("--ncore", type="numeric", default=1,
               help="number of threads", metavar="numeric"),
-  make_option("--ref_genome", type="character", default=NULL, 
+  make_option("--ref_genome", type="character", default=NULL,
               help="reference genome", metavar="character"),
-  make_option("--ref_gtf", type="character", default=NULL, 
+  make_option("--ref_gtf", type="character", default=NULL,
               help="reference gtf", metavar="character"),
-  make_option("--lowMemory", type="logical", default=TRUE, 
-            help="low memory mode", metavar="logical")            
+  make_option("--lowMemory", type="logical", default=TRUE,
+            help="low memory mode", metavar="logical")
 );
- 
+
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 # This function creates a reference annotation object which is used for transcript discovery and quantification in Bambu.
@@ -34,7 +34,7 @@ sprintf("processing %s read classes", length(rds))
 ## run bambu
 se <- bambu(reads = rds, annotations = annotations, ncore = opt$ncore,
             genome = opt$ref_genome, NDR = opt$NDR, verbose=TRUE,
-            quant = opt$quant, discovery=opt$discovery, 
+            quant = opt$quant, discovery=opt$discovery,
             yieldSize = opt$yieldsize, lowMemory=opt$lowMemory)
 ## write outputs to gtf and expression level files
 if (opt$quant){

@@ -29,9 +29,30 @@ indent_style = unset
 indent_size = unset
 
 # ignore python and markdown
-[*.{py,md}]
+[*.{py,md,R}]
 indent_style = unset
+
+# ignore devcontainer files
+[.devcontainer/**]
+insert_final_newline = unset
+# ignore docker files
+[**/Dockerfile]
+insert_final_newline = unset
 
 # ignore ro-crate metadata files
 [**/ro-crate-metadata.json]
 insert_final_newline = unset
+
+# ignore csv files
+[*.csv]
+end_of_line = unset
+insert_final_newline = unset
+# ignore tests subdirectories for now
+[**/tests/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+
+

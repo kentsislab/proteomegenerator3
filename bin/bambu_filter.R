@@ -3,9 +3,9 @@ library(bambu)
 library(optparse)
 ## load in commandline args
 option_list = list(
-  make_option("--se", type="character", default=NULL, 
+  make_option("--se", type="character", default=NULL,
               help="bambu read classes", metavar="character"),
-  make_option("--merge", type="logical", default=FALSE, 
+  make_option("--merge", type="logical", default=FALSE,
               help="if multisample merge was performed", metavar="logical")
 );
 opt_parser = OptionParser(option_list=option_list);

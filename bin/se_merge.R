@@ -3,7 +3,7 @@ library(bambu)
 library(optparse)
 ## load in commandline args
 option_list = list(
-  make_option("--se", type="character", default=NULL, 
+  make_option("--se", type="character", default=NULL,
               help="summarized experiments", metavar="character")
 );
 opt_parser = OptionParser(option_list=option_list);
