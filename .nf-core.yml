@@ -3,7 +3,11 @@ repository_type: pipeline
 nf_core_version: 3.2.1
 
 lint:
+  actions_schema_validation: false
   files_unchanged:
+    - .github/workflows/linting.yml
+    - .github/workflows/linting_comment.yml
+    - .prettierrc.yml
     - CODE_OF_CONDUCT.md
     - assets/nf-core-proteomegenerator3_logo_light.png
     - docs/images/nf-core-proteomegenerator3_logo_light.png
