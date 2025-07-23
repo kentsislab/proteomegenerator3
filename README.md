@@ -49,8 +49,8 @@ Each row represents a long-read RNAseq sample. The columns are as follows:
 2. `bam`: aligned, sorted long-read RNAseq bam
 3. `bai`: index file for bam
 4. `rcFile`: read class file from Bambu if you've already done some pre-processing; you can provide this and then use the `--skip_preprocessing` flag to speed up run time and re-analyze previous samples
-5. Fusion contigs which are output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultsfasta-file)).
-6. Fusion table which is output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultscsv))
+5. `jaffal_fasta`: Fusion contigs which are output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultsfasta-file)).
+6. `jaffal_table`: Fusion table which is output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultscsv))
 
 To produce the necessary files, we recommend using the [nf-core/nanoseq](https://nf-co.re/nanoseq/3.1.0/) pipeline, which will run both alignment and call fusions with JAFFAL.
 
