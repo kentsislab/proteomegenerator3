@@ -1,4 +1,4 @@
-name: proteomegenerator3 CI
+name: nf-core CI
 
 on:
   push:
