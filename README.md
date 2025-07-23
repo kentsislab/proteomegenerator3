@@ -20,7 +20,12 @@
 
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+
+1. Pre-processing of aligned reads to create transcript read classes with [bambu](https://github.com/GoekeLab/bambu) which can be re-used in future analyses. Optional filtering:
+   1. Filtering on MAPQ and read length with [samtools](https://www.htslib.org/)
+2. Transcript assembly, quantification, and filtering with [bambu](https://github.com/GoekeLab/bambu). Option to merge multiple samples into a unified transcriptome
+3. MultiQC to collate package versions used ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 

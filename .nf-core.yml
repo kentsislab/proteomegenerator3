@@ -1,6 +1,6 @@
 repository_type: pipeline
 
-nf_core_version: 3.2.1
+nf_core_version: 3.3.2
 
 lint:
   actions_schema_validation: false
@@ -8,6 +8,7 @@ lint:
   nextflow_config: false
   nf_test_content: false
   rocrate_readme_sync: false
+  actions_ci: false
   files_unchanged:
     - .github/workflows/linting.yml
     - .github/workflows/linting_comment.yml
