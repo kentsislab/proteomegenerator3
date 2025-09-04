@@ -145,7 +145,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
-If you use kentsislab/proteomegenerator3 for your analysis, please cite it our manuscript:
+If you use kentsislab/proteomegenerator3 for your analysis, please cite our manuscript:
 
 > **End-to-end proteogenomics for discovery of cryptic and non-canonical cancer proteoforms using long-read transcriptomics and multi-dimensional proteomics**
 >
