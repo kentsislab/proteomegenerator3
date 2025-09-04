@@ -151,7 +151,7 @@ If you use kentsislab/proteomegenerator3 for your analysis, please cite it our m
 >
 > Katarzyna Kulej, Asher Preska Steinberg, Jinxin Zhang, Gabriella Casalena, Eli Havasov, Sohrab P. Shah, Andrew McPherson, Alex Kentsis.
 >
-> _BioRXiv._ 2025 XX XX. doi: [XXXX](XXXX).
+> _BioRXiv._ 2025 Aug 28. doi: [10.1101/2025.08.23.671943]( https://doi.org/10.1101/2025.08.23.671943).
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
