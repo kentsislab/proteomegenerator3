@@ -3,7 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0dev - [2025-07-23]
+## [1.0.0] - 2025-11-01
+
+First stable release of kentsislab/proteomegenerator3.
+
+### Changed
+
+- Updated README.md with version 1.0.0 and biorxiv citation.
+
+## [1.0.0dev] - 2025-07-23
 
 Initial release of kentsislab/proteomegenerator3, created with the [nf-core](https://nf-co.re/) template.
 
