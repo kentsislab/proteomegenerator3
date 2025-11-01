@@ -59,7 +59,7 @@ Now, you can run the pipeline using:
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0dev \
+nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
@@ -77,13 +77,13 @@ Where `REF_GENOME` and `REF_GTF` are the reference genome and transcriptome resp
 To see all optional parameters that could be used with the pipeline and their explanations, use the help menu:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0dev --help
+nextflow run kentsislab/proteomegenerator3 -r 1.0.0 --help
 ```
 
 This options can be run using flags. For example:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0dev \
+nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
@@ -97,7 +97,7 @@ Will pre-filter the bam file before transcript assembly is performed on mapq and
 As another example, you can use the following flag to perform ORF calling on fusion contigs:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0dev \
+nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
