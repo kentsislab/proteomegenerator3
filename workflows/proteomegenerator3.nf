@@ -195,6 +195,8 @@ workflow PROTEOMEGENERATOR3 {
 def countSamples(input) {
     def lines = file(input).readLines()
     def sample_count = lines.size() - 1
-    println("1 sample detected; switching to single sample mode")
+    if (sample_count == 1) {
+        println("1 sample detected; switching to single sample mode")
+    }
     return sample_count
 }
