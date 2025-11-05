@@ -122,7 +122,7 @@ workflow PROTEOMEGENERATOR3 {
         }
     }
     // predict ORFs with transdecoder and output fasta for msfragger
-    PREDICT_ORFS(orf_ch, params.fusions)
+    PREDICT_ORFS(orf_ch, params.fusions, params.blast_db)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
     // collect versions
     softwareVersionsToYAML(ch_versions)
