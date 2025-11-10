@@ -26,9 +26,8 @@ workflow PREDICT_ORFS {
     // make diamond database
     DIAMOND_MAKEDB(blast_fasta, [], [], [])
     ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions)
-    // prepare input for transdecoder
-    fasta_ch = orf_ch.map { meta, fasta, _fusion_table -> tuple(meta, fasta) }
-    TRANSDECODER_LONGORF(fasta_ch)
+    // run transdecoder
+    TRANSDECODER_LONGORF(orf_ch)
     ch_versions = ch_versions.mix(TRANSDECODER_LONGORF.out.versions)
     // blast orfs against database
     DIAMOND_BLASTP(
