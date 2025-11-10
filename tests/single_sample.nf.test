@@ -9,9 +9,9 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
-                input  = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/proteomegenerator3/samplesheet_singlesample.csv'
-                fasta  = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/proteomegenerator3/reference/Homo_sapiens.GRCh38.dna_sm.primary_assembly_chr9_1_1000000.fa'
-                gtf = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/proteomegenerator3/reference/Homo_sapiens.GRCh38.91_chr9_1_1000000.gtf'
+                input  = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/samplesheet_singlesample.csv'
+                fasta  = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/reference/Homo_sapiens.GRCh38.dna_sm.primary_assembly_chr9_1_1000000.fa'
+                gtf = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/reference/Homo_sapiens.GRCh38.91_chr9_1_1000000.gtf'
             }
         }
 
