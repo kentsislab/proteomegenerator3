@@ -14,7 +14,7 @@ process TRANSDECODER2FASTA {
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
     tuple val(meta), path("*proteins.fasta"), emit: fasta
-    tuple val(meta), path("*protein_transcript_info.tsv"), optional: true, emit: fusion_stats
+    tuple val(meta), path("*protein_transcript_info.tsv"), emit: protein_table
     path "versions.yml", emit: versions
 
     when:

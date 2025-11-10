@@ -8,6 +8,7 @@ include { ASSEMBLY_QUANT         } from '../subworkflows/local/assembly_quant/ma
 include { GFFREAD                } from '../modules/nf-core/gffread/main'
 include { CAT_CAT                } from '../modules/nf-core/cat/cat/main'
 include { PREDICT_ORFS           } from '../subworkflows/local/predict_orfs/main'
+include { FASTA_MERGE_ANNOTATE   } from '../subworkflows/local/fasta_merge_annotate/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -128,6 +129,7 @@ workflow PROTEOMEGENERATOR3 {
     // predict ORFs with transdecoder and output fasta for msfragger
     PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.blast_db)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
+
     // make uniprot-style fasta for msfragger and create index tables
     // collect versions
     softwareVersionsToYAML(ch_versions)
