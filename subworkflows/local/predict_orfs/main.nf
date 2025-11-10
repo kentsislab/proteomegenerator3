@@ -5,10 +5,10 @@ include { DIAMOND_BLASTP       } from '../../../modules/nf-core/diamond/blastp/m
 include { TRANSDECODER_LONGORF } from '../../../modules/nf-core/transdecoder/longorf/main'
 include { TRANSDECODER_PREDICT } from '../../../modules/local/transdecoder/predict/main'
 include { WRITEFASTA           } from '../../../modules/local/writefasta/main'
+include { TRANSDECODER2FASTA   } from '../../../modules/local/transdecoder2fasta/main'
 workflow PREDICT_ORFS {
     take:
     orf_ch // channel: [ val(meta), fasta, fusion_table ]
-    fusions // boolean: whether to predict ORFs for fusions
     blast_db // path to diamond blast database if it already exists
 
     main:
@@ -43,13 +43,8 @@ workflow PREDICT_ORFS {
     input_predict_ch.view()
     TRANSDECODER_PREDICT(input_predict_ch, TRANSDECODER_LONGORF.out.folder)
     ch_versions = ch_versions.mix(TRANSDECODER_PREDICT.out.versions)
-    fusion_ch = orf_ch.map { meta, fasta, fusion_table -> tuple(meta, fusion_table) }
-    protein_ch = TRANSDECODER_PREDICT.out.pep.join(fusion_ch)
-    protein_ch.view()
-    WRITEFASTA(protein_ch)
-    ch_versions = ch_versions.mix(WRITEFASTA.out.versions)
 
     emit:
-    proteins = WRITEFASTA.out.fasta // channel: [ val(meta), fasta ]
+    ORFs     = TRANSDECODER_PREDICT.out.pep // channel: [ val(meta), fasta ]
     versions = ch_versions // channel: [ versions.yml ]
 }
