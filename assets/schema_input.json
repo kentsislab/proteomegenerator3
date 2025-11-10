@@ -20,13 +20,6 @@
                 "pattern": "^\\S+\\.bam$",
                 "errorMessage": "bam file for aligned reads must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "bai": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\\S+\\.bai$",
-                "errorMessage": "bai file for aligned bam cannot contain spaces and must have extension '.bai'"
-            },
             "rcFile": {
                 "type": "string",
                 "format": "file-path",
@@ -49,6 +42,6 @@
                 "errorMessage": "JAFFAL results table; cannot contain spaces and must have extension '.csv'"
             }
         },
-        "required": ["sample", "bam", "bai"]
+        "required": ["sample", "bam"]
     }
 }

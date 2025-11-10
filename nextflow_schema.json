@@ -304,6 +304,30 @@
                 "multiple_orfs": {
                     "type": "boolean",
                     "description": "allow for multiple ORFs per transcript"
+                },
+                "blast_db": {
+                    "type": "string",
+                    "description": "path to protein fasta  to run diamond blast against non-uniprot databases"
+                },
+                "uniprot_proteome": {
+                    "type": "string",
+                    "default": "UP000005640",
+                    "description": "download latest version of UniProt to blast against"
+                },
+                "reviewed": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Download only reviewed sequences from Swiss-Prot"
+                },
+                "isoforms": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Allows isoform sequences to be added to the download"
+                },
+                "max_evalue": {
+                    "type": "number",
+                    "default": 1e-5,
+                    "description": "max e-value to return as part of search results"
                 }
             }
         }

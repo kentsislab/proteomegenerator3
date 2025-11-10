@@ -31,15 +31,15 @@ workflow PROTEOMEGENERATOR3 {
     // MODULE: Run samtools view to filter bam files for reads aligned to accessory chromosomes
     //
     if (!params.skip_preprocessing) {
-        input_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam, bai) }
+        input_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
         PREPROCESS_READS(input_ch, params.filter_reads, params.filter_acc_reads)
         rc_ch = PREPROCESS_READS.out.reads
         bam_ch = PREPROCESS_READS.out.bam
         ch_versions = ch_versions.mix(PREPROCESS_READS.out.versions)
     }
     else {
-        rc_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, rds) }
-        bam_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
+        rc_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, rds) }
+        bam_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
     }
     // perform assembly & quantification with bambu
     // make an NDR channel
@@ -87,7 +87,7 @@ workflow PROTEOMEGENERATOR3 {
     if (params.fusions == true) {
         // use this obnoxious method to make a fusion channel
         fusion_ch = ch_samplesheet
-            .map { meta, bam, bai, rds, fusion_fa, fusion_table ->
+            .map { meta, bam, rds, fusion_fa, fusion_table ->
                 tuple(meta, fusion_fa, fusion_table)
             }
             .combine(ch_NDR)
