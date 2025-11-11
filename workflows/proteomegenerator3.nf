@@ -61,20 +61,12 @@ workflow PROTEOMEGENERATOR3 {
     }
     ref_gtf_ch = channel.of(params.gtf)
     // run sample assembly & quant with read classes
-    // if we have fusions, we need to run single sample mode
-    if (params.fusions == true) {
-        single_sample = true
-        println("Fusions detected; switching to single sample mode")
-    }
-    else {
-        single_sample = params.single_sample
-    }
     // count samples to make sure multisample isn't run on single samples
     sample_count = countSamples(params.input)
     // run assembly and quant with bambu
     ASSEMBLY_QUANT(
         rc_ch,
-        single_sample,
+        params.skip_multisample,
         sample_count,
         ch_NDR,
         ref_gtf_ch,

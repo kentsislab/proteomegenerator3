@@ -33,7 +33,7 @@ workflow FASTA_MERGE_ANNOTATE {
             .map { meta1, novel_proteins, fusions, _meta2, sp_fasta ->
                 [meta1, [sp_fasta, novel_proteins, fusions]]
             }
-        // cat_ch.view()
+        cat_ch.view()
         // concat fasta files
         CAT_CAT(cat_ch)
         ch_versions = ch_versions.mix(CAT_CAT.out.versions.first())
