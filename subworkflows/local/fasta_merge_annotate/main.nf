@@ -1,9 +1,12 @@
 // make uniprot-style fasta for msfragger and create index tables
 include { TRANSDECODER2FASTA } from '../../../modules/local/transdecoder2fasta/main.nf'
+include { MERGEFUSIONS       } from '../../../modules/local/mergefusions/main.nf'
 
 workflow FASTA_MERGE_ANNOTATE {
     take:
     ch_orfs // channel: [ val(meta), [ transdecoder_peps, gtf, swissprot_fasta ] ]
+    samplesheet // samplesheet
+    skip_multisample // boolean determining multi or single sample mode
 
     main:
 
@@ -12,6 +15,11 @@ workflow FASTA_MERGE_ANNOTATE {
     // uniprot-style fasta and index table for transdecoder orfs
     TRANSDECODER2FASTA(ch_orfs)
     ch_versions = ch_versions.mix(TRANSDECODER2FASTA.out.versions.first())
+    // merge fusions if multisample mode has been enabled
+    if (!skip_multisample) {
+        MERGEFUSIONS(samplesheet)
+        ch_versions = ch_versions.mix(MERGEFUSIONS.out.versions)
+    }
 
     emit:
     proteins    = TRANSDECODER2FASTA.out.fasta // channel: [ val(meta), [ fasta ] ]

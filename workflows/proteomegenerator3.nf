@@ -32,15 +32,15 @@ workflow PROTEOMEGENERATOR3 {
     // MODULE: Run samtools view to filter bam files for reads aligned to accessory chromosomes
     //
     if (!params.skip_preprocessing) {
-        input_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
+        input_ch = ch_samplesheet.map { meta, bam, _rds, _fusion_tsv -> tuple(meta, bam) }
         PREPROCESS_READS(input_ch, params.filter_reads, params.filter_acc_reads)
         rc_ch = PREPROCESS_READS.out.reads
         bam_ch = PREPROCESS_READS.out.bam
         ch_versions = ch_versions.mix(PREPROCESS_READS.out.versions)
     }
     else {
-        rc_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, rds) }
-        bam_ch = ch_samplesheet.map { meta, bam, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
+        rc_ch = ch_samplesheet.map { meta, _bam, rds, _fusion_tsv -> tuple(meta, rds) }
+        bam_ch = ch_samplesheet.map { meta, bam, _rds, _fusion_tsv -> tuple(meta, bam) }
     }
     // perform assembly & quantification with bambu
     // make an NDR channel
@@ -127,10 +127,14 @@ workflow PROTEOMEGENERATOR3 {
     //     tuple(meta, fasta, [])
     // }
     // predict ORFs with transdecoder and output fasta for msfragger
-    PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.blast_db)
+    PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.ref_proteome)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
-
     // make uniprot-style fasta for msfragger and create index tables
+    ch_orfs = PREDICT_ORFS.out.ORFs
+        .join(ASSEMBLY_QUANT.out.gtf, by: 0)
+        .combine(PREDICT_ORFS.out.swissprot.map { _meta, fasta -> fasta })
+    FASTA_MERGE_ANNOTATE(ch_orfs, params.input, params.skip_multisample)
+    ch_versions = ch_versions.mix(FASTA_MERGE_ANNOTATE.out.versions)
     // collect versions
     softwareVersionsToYAML(ch_versions)
         .collectFile(

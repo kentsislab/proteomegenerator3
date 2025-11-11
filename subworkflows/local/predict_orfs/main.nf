@@ -8,7 +8,7 @@ include { WRITEFASTA           } from '../../../modules/local/writefasta/main'
 include { TRANSDECODER2FASTA   } from '../../../modules/local/transdecoder2fasta/main'
 workflow PREDICT_ORFS {
     take:
-    orf_ch // channel: [ val(meta), fasta, fusion_table ]
+    fasta_ch // channel: [ val(meta), fasta, fusion_table ]
     blast_db // path to diamond blast database if it already exists
 
     main:
@@ -21,13 +21,13 @@ workflow PREDICT_ORFS {
         ch_versions = ch_versions.mix(PHILOSOPHER_DATABASE.out.versions)
     }
     else {
-        blast_fasta = [[id: 'db_prep'], blast_db]
+        blast_fasta = [[id: params.uniprot_proteome], blast_db]
     }
     // make diamond database
     DIAMOND_MAKEDB(blast_fasta, [], [], [])
     ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions)
     // run transdecoder
-    TRANSDECODER_LONGORF(orf_ch)
+    TRANSDECODER_LONGORF(fasta_ch)
     ch_versions = ch_versions.mix(TRANSDECODER_LONGORF.out.versions)
     // blast orfs against database
     DIAMOND_BLASTP(
@@ -39,11 +39,12 @@ workflow PREDICT_ORFS {
     ch_versions = ch_versions.mix(DIAMOND_BLASTP.out.versions)
     // join the fasta channel with blast results
     input_predict_ch = fasta_ch.join(DIAMOND_BLASTP.out.txt)
-    input_predict_ch.view()
+    // input_predict_ch.view()
     TRANSDECODER_PREDICT(input_predict_ch, TRANSDECODER_LONGORF.out.folder)
     ch_versions = ch_versions.mix(TRANSDECODER_PREDICT.out.versions)
 
     emit:
-    ORFs     = TRANSDECODER_PREDICT.out.pep // channel: [ val(meta), fasta ]
-    versions = ch_versions // channel: [ versions.yml ]
+    ORFs      = TRANSDECODER_PREDICT.out.pep // channel: [ val(meta), fasta ]
+    swissprot = blast_fasta
+    versions  = ch_versions // channel: [ versions.yml ]
 }
