@@ -133,7 +133,12 @@ workflow PROTEOMEGENERATOR3 {
     ch_orfs = PREDICT_ORFS.out.ORFs
         .join(ASSEMBLY_QUANT.out.gtf, by: 0)
         .combine(PREDICT_ORFS.out.swissprot.map { _meta, fasta -> fasta })
-    FASTA_MERGE_ANNOTATE(ch_orfs, params.input, params.skip_multisample)
+    FASTA_MERGE_ANNOTATE(
+        ch_orfs,
+        params.input,
+        params.skip_multisample,
+        PREDICT_ORFS.out.swissprot,
+    )
     ch_versions = ch_versions.mix(FASTA_MERGE_ANNOTATE.out.versions)
     // collect versions
     softwareVersionsToYAML(ch_versions)

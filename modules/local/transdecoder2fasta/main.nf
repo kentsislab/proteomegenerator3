@@ -2,7 +2,7 @@
 process TRANSDECODER2FASTA {
     tag "${meta.id}"
     label 'process_single'
-    publishDir "${params.outdir}/proteome/${meta.id}", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/proteome", mode: 'copy'
 
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
@@ -13,8 +13,8 @@ process TRANSDECODER2FASTA {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*proteins.fasta"), emit: fasta
-    tuple val(meta), path("*protein_transcript_info.tsv"), emit: tsv
+    tuple val(meta), path("*.predicted_orfs.fasta"), emit: fasta
+    tuple val(meta), path("*.predicted_orf_info.tsv"), emit: tsv
     path "versions.yml", emit: versions
 
     when:
@@ -28,8 +28,8 @@ process TRANSDECODER2FASTA {
         ${peps} \\
         ${gtf} \\
         ${swissprot} \\
-        ${prefix}.proteins.fasta \\
-        ${prefix}.protein_transcript_info.tsv
+        ${prefix}.predicted_orfs.fasta \\
+        ${prefix}.predicted_orf_info.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -43,16 +43,16 @@ process TRANSDECODER2FASTA {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    // TODO nf-core: A stub section should mimic the execution of the original module as best as possible
-    //               Have a look at the following examples:
-    //               Simple example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bcftools/annotate/main.nf#L47-L63
-    //               Complex example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bedtools/split/main.nf#L38-L54
     """
-    touch ${prefix}.bam
+    touch ${prefix}.predicted_orfs.fasta
+    touch ${prefix}.predicted_orf_info.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        writefasta: \$(writefasta --version)
+        python: \$(python --version | sed 's/Python //g')
+        pandas: \$(python -c "import pandas; print(pandas.__version__)")
+        numpy: \$(python -c "import numpy; print(numpy.__version__)")
+        biopython: \$(python -c "import Bio; print(Bio.__version__)")
     END_VERSIONS
     """
 }

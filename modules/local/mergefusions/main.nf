@@ -2,6 +2,7 @@
 process MERGEFUSIONS {
     tag '$samplesheet'
     label 'process_single'
+    publishDir "${params.outdir}/proteome", mode: 'copy'
 
     conda "${moduleDir}/environment.yml"
     container "quay.io/shahlab_singularity/biopython:v250501"
@@ -10,8 +11,8 @@ process MERGEFUSIONS {
     path samplesheet
 
     output:
-    path "fusion_summary.tsv", emit: tsv
-    path "fusion_proteins.fasta", emit: fasta
+    path "merge.predicted_fusion_orf_info.tsv", emit: tsv
+    path "merge.predicted_fusion_orfs.fasta", emit: fasta
     path "versions.yml", emit: versions
 
     when:
@@ -22,8 +23,8 @@ process MERGEFUSIONS {
     """
     merge_fusions.py \\
         ${samplesheet} \\
-        fusion_summary.tsv \\
-        fusion_proteins.fasta
+        merge.predicted_fusion_orf_info.tsv\\
+        merge.predicted_fusion_orfs.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
