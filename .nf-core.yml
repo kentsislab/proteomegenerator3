@@ -13,6 +13,7 @@ lint:
     - .github/workflows/linting.yml
     - .github/workflows/linting_comment.yml
     - .prettierrc.yml
+    - .prettierignore
     - CODE_OF_CONDUCT.md
     - assets/nf-core-proteomegenerator3_logo_light.png
     - docs/images/nf-core-proteomegenerator3_logo_light.png
@@ -30,7 +31,11 @@ template:
   name: proteomegenerator3
   description: run Bambu for ONT transcript assembly
   author: Asher Preska Steinberg
-  version: 1.0.1dev
+  version: 1.1.0
   force: true
   outdir: .
   is_nfcore: false
+
+download:
+  skip_container_check:
+    - diamond/blastp

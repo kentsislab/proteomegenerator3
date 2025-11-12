@@ -297,7 +297,7 @@
                     "type": "boolean",
                     "description": "just include single best ORF per transcript"
                 },
-                "uniprot_proteome": {
+                "UPID": {
                     "type": "string",
                     "default": "UP000005640",
                     "description": "download latest version of UniProt to blast against + merge predicted ORFs with"
@@ -317,7 +317,7 @@
                     "default": 1e-5,
                     "description": "max e-value to return as part of search results"
                 },
-                "ref_proteome": {
+                "uniprot_proteome": {
                     "type": "string",
                     "description": "path to reference proteome to merge with + blast against in transdecoder"
                 }

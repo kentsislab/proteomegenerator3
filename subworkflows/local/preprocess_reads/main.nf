@@ -1,12 +1,12 @@
 // preprocess reads via filtering and read class creation with bambu
-include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index/main' 
+include { SAMTOOLS_INDEX                } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_VIEW ; SAMTOOLS_VIEW as FILTER_READS } from '../../../modules/nf-core/samtools/view/main'
 include { BAMBU_READCLASSES             } from '../../../modules/local/bambu/readclasses/main'
 
 workflow PREPROCESS_READS {
     take:
-    input_bam_ch   // channel: [ val(meta), [ bam ] ]
-    filter_reads     // boolean; filter reads on mapq and read length
+    input_bam_ch // channel: [ val(meta), [ bam ] ]
+    filter_reads // boolean; filter reads on mapq and read length
     filter_acc_reads // boolean; filter reads on accessory chromosomes
 
     main:
@@ -19,7 +19,7 @@ workflow PREPROCESS_READS {
     }
     if (filter_reads) {
         ch_filtered = FILTER_READS(
-            bam_bai_ch ,
+            bam_bai_ch,
             [[], []],
             [],
             "bai",
@@ -29,7 +29,7 @@ workflow PREPROCESS_READS {
     }
     else if (filter_acc_reads) {
         ch_filtered = SAMTOOLS_VIEW(
-            bam_bai_ch ,
+            bam_bai_ch,
             [[], []],
             [],
             "bai",

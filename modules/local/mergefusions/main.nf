@@ -23,7 +23,7 @@ process MERGEFUSIONS {
     """
     merge_fusions.py \\
         ${samplesheet} \\
-        merge.predicted_fusion_orf_info.tsv\\
+        merge.predicted_fusion_orf_info.tsv \\
         merge.predicted_fusion_orfs.fasta
 
     cat <<-END_VERSIONS > versions.yml
@@ -46,13 +46,14 @@ process MERGEFUSIONS {
     //               - The use of the variable in the script `echo $args ` below.
     """
     echo ${args}
-    
-    touch fusion_summary.tsv
-    touch fusion_proteins.fasta
+    touch merge.predicted_fusion_orf_info.tsv
+    touch merge.predicted_fusion_orfs.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        mergefusions: \$(mergefusions --version)
+        python: \$(python --version | sed 's/Python //g')
+        pandas: \$(python -c "import pandas; print(pandas.__version__)")
+        numpy: \$(python -c "import numpy; print(numpy.__version__)")
     END_VERSIONS
     """
 }

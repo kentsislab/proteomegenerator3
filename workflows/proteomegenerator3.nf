@@ -119,7 +119,7 @@ workflow PROTEOMEGENERATOR3 {
     //     tuple(meta, fasta, [])
     // }
     // predict ORFs with transdecoder and output fasta for msfragger
-    PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.ref_proteome)
+    PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.uniprot_proteome)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
     // make uniprot-style fasta for msfragger and create index tables
     ch_orfs = PREDICT_ORFS.out.ORFs

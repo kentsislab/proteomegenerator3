@@ -16,12 +16,12 @@ workflow PREDICT_ORFS {
     ch_versions = Channel.empty()
     // prepare diamond database for diamond blast
     if (!blast_db) {
-        PHILOSOPHER_DATABASE([id: params.uniprot_proteome], params.reviewed, params.isoforms)
+        PHILOSOPHER_DATABASE([id: params.UPID], params.reviewed, params.isoforms)
         blast_fasta = PHILOSOPHER_DATABASE.out.fasta
         ch_versions = ch_versions.mix(PHILOSOPHER_DATABASE.out.versions)
     }
     else {
-        blast_fasta = [[id: params.uniprot_proteome], blast_db]
+        blast_fasta = [[id: params.UPID], blast_db]
     }
     // make diamond database
     DIAMOND_MAKEDB(blast_fasta, [], [], [])
