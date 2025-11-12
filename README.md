@@ -26,7 +26,7 @@
    1. Filtering on MAPQ and read length with [samtools](https://www.htslib.org/)
 2. Transcript assembly, quantification, and filtering with [bambu](https://github.com/GoekeLab/bambu). Option to merge multiple samples into a unified transcriptome.
 3. ORF prediction with [Transdecoder](https://github.com/TransDecoder/TransDecoder).
-4. Formatting of ORFs into a UniProt-style fasta file  which can be used for computational proteomics searchs with [Fragpipe](https://fragpipe.nesvilab.org/), [DIA-NN](https://github.com/vdemichev/DiaNN), [Spectronaut](https://biognosys.com/software/spectronaut/).
+4. Formatting of ORFs into a UniProt-style fasta file which can be used for computational proteomics searchs with [Fragpipe](https://fragpipe.nesvilab.org/), [DIA-NN](https://github.com/vdemichev/DiaNN), [Spectronaut](https://biognosys.com/software/spectronaut/).
 5. Concatenation of sample-specific proteome fasta produced in #4 with a UniProt proteome of the user's choice to allow for spectra to compete between non-canonical and canonical proteoforms.
 6. Deduplication of sequences and basic statistics with [seqkit](https://bioinf.shenwei.me/seqkit/usage/#quick-guide)
 7. MultiQC to collate package versions used ([`MultiQC`](http://multiqc.info/))
