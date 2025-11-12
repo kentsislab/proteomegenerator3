@@ -25,9 +25,11 @@
 1. Pre-processing of aligned reads to create transcript read classes with [bambu](https://github.com/GoekeLab/bambu) which can be re-used in future analyses. Optional filtering:
    1. Filtering on MAPQ and read length with [samtools](https://www.htslib.org/)
 2. Transcript assembly, quantification, and filtering with [bambu](https://github.com/GoekeLab/bambu). Option to merge multiple samples into a unified transcriptome.
-3. ORF prediction with [Transdecoder](https://github.com/TransDecoder/TransDecoder). Option to provide fusion contigs from [JAFFAL](https://github.com/Oshlack/JAFFA).
-4. Formatting of ORFs into a fasta file which can be used for computational proteomics searchs with [Fragpipe](https://fragpipe.nesvilab.org/), [DIA-NN](https://github.com/vdemichev/DiaNN), [Spectronaut](https://biognosys.com/software/spectronaut/).
-5. MultiQC to collate package versions used ([`MultiQC`](http://multiqc.info/))
+3. ORF prediction with [Transdecoder](https://github.com/TransDecoder/TransDecoder).
+4. Formatting of ORFs into a UniProt-style fasta file which can be used for computational proteomics searchs with [Fragpipe](https://fragpipe.nesvilab.org/), [DIA-NN](https://github.com/vdemichev/DiaNN), [Spectronaut](https://biognosys.com/software/spectronaut/).
+5. Concatenation of sample-specific proteome fasta produced in #4 with a UniProt proteome of the user's choice to allow for spectra to compete between non-canonical and canonical proteoforms.
+6. Deduplication of sequences and basic statistics with [seqkit](https://bioinf.shenwei.me/seqkit/usage/#quick-guide)
+7. MultiQC to collate package versions used ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
@@ -39,27 +41,25 @@ First, prepare a samplesheet with your input data that looks as follows:
 `samplesheet.csv`:
 
 ```csv
-sample,bam,bai,rcFile,jaffal_fasta,jaffal_table
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.bam,AEG588A1_S1_L002_R1_001.bam.bai,,jaffal_results.fasta,jaffal_results.csv
+sample,bam,rcFile,fusion_tsv
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.bam,,fusion_predictions.tsv
 ```
 
 Each row represents a long-read RNAseq sample. The columns are as follows:
 
-1. `sample`: name of the sample
-2. `bam`: aligned, sorted long-read RNAseq bam
-3. `bai`: index file for bam
-4. `rcFile`: read class file from Bambu if you've already done some pre-processing; you can provide this and then use the `--skip_preprocessing` flag to speed up run time and re-analyze previous samples
-5. `jaffal_fasta`: Fusion contigs which are output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultsfasta-file)).
-6. `jaffal_table`: Fusion table which is output from JAFFAL (see description [here](https://github.com/Oshlack/JAFFA/wiki/OutputDescription#jaffa_resultscsv))
+1. `sample`: Sample name (required)
+2. `bam`: Aligned, sorted long-read RNAseq BAM file (required)
+3. `rcFile`: Optional Bambu read class file (.rds) from previous runs; use with `--skip_preprocessing` flag to speed up runtime and re-analyze previous samples
+4. `fusion_tsv`: Optional fusion predictions TSV file from ctat-lr-fusion
 
-To produce the necessary files, we recommend using the [nf-core/nanoseq](https://nf-co.re/nanoseq/3.1.0/) pipeline, which will run both alignment and call fusions with JAFFAL.
+To produce the necessary files, we recommend using the [nf-core/nanoseq](https://nf-co.re/nanoseq/3.1.0/) pipeline for alignment, or [ctat-lr-fusion](https://github.com/TrinityCTAT/CTAT-LR-fusion) for fusion calling.
 
 Now, you can run the pipeline using:
 
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
+nextflow run kentsislab/proteomegenerator3 -r 1.1.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
@@ -77,13 +77,13 @@ Where `REF_GENOME` and `REF_GTF` are the reference genome and transcriptome resp
 To see all optional parameters that could be used with the pipeline and their explanations, use the help menu:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0 --help
+nextflow run kentsislab/proteomegenerator3 -r 1.1.0 --help
 ```
 
 This options can be run using flags. For example:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
+nextflow run kentsislab/proteomegenerator3 -r 1.1.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
@@ -94,22 +94,22 @@ nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
 
 Will pre-filter the bam file before transcript assembly is performed on mapq and read length.
 
-As another example, you can use the following flag to perform ORF calling on fusion contigs:
+As another example, you can skip multi-sample transcript merging and process each sample independently:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r 1.0.0 \
+nextflow run kentsislab/proteomegenerator3 -r 1.1.0 \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --fasta <REF_GENOME> \
    --gtf <REF_GTF> \
    --outdir <OUTDIR> \
-   --fusions
+   --skip_multisample
 ```
 
-To run with the latest version, which may not be stable you can use the `-r main -latest` flags:
+To run with the latest version, which may not be stable you can use the `-r dev -latest` flags:
 
 ```bash
-nextflow run kentsislab/proteomegenerator3 -r main -latest --help
+nextflow run kentsislab/proteomegenerator3 -r dev -latest --help
 ```
 
 I have highlighted the following options here:
@@ -121,10 +121,10 @@ I have highlighted the following options here:
 5. `skip_preprocessing`: use previously generated bambu read classes
 6. `NDR`: modulate bambu's novel discovery rate [default: 0.1]
 7. `recommended_NDR`: run bambu with recommended NDR (as determined by bambu's algorithm)
-8. `single_sample`: Run bambu on samples individually, and skip merging of transcriptomes; if you provide a single sample or fusions, this will be automatically run.
-9. `skip_multisample`: skip multisample transcript assembly (see #8).
-10. `fusions`: Perform ORF predictions on fusions from JAFFAL [default: false]
-11. `multiple_orfs`: Allow for multiple ORFs per transcript (this is in beta-testing)
+8. `skip_multisample`: skip multi-sample transcript merging and process samples individually
+9. `single_best_only`: select only the single best ORF per transcript [default: false]
+10. `uniprot_proteome`: local path to UniProt proteome for (i) BLAST-based ORF validation in Transdecoder subworkflow and (ii) concatenation of the final proteome fasta file.
+11. `UPID`: UniProt proteome ID (UPID) for automated download (if no local path was provided with option #10) [default: UP000005640]
 
 ## Credits
 

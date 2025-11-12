@@ -20,13 +20,6 @@
                 "pattern": "^\\S+\\.bam$",
                 "errorMessage": "bam file for aligned reads must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "bai": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\\S+\\.bai$",
-                "errorMessage": "bai file for aligned bam cannot contain spaces and must have extension '.bai'"
-            },
             "rcFile": {
                 "type": "string",
                 "format": "file-path",
@@ -34,21 +27,14 @@
                 "pattern": "^\\S+\\.rds$",
                 "errorMessage": "transcript read classes from previous bambu runs cannot contain spaces and must have extension '.rds'"
             },
-            "jaffal_fasta": {
+            "fusion_tsv": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.fasta$",
-                "errorMessage": "fusion contigs from JAFFAL; cannot contain spaces and must have extension '.fasta'"
-            },
-            "jaffal_table": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^\\S+\\.csv$",
-                "errorMessage": "JAFFAL results table; cannot contain spaces and must have extension '.csv'"
+                "pattern": "^\\S+\\.tsv$",
+                "errorMessage": "ctat-lr-fusion predictions tsv; cannot contain spaces and must have extension '.tsv'"
             }
         },
-        "required": ["sample", "bam", "bai"]
+        "required": ["sample", "bam"]
     }
 }

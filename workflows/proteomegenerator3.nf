@@ -8,6 +8,7 @@ include { ASSEMBLY_QUANT         } from '../subworkflows/local/assembly_quant/ma
 include { GFFREAD                } from '../modules/nf-core/gffread/main'
 include { CAT_CAT                } from '../modules/nf-core/cat/cat/main'
 include { PREDICT_ORFS           } from '../subworkflows/local/predict_orfs/main'
+include { FASTA_MERGE_ANNOTATE   } from '../subworkflows/local/fasta_merge_annotate/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -31,15 +32,15 @@ workflow PROTEOMEGENERATOR3 {
     // MODULE: Run samtools view to filter bam files for reads aligned to accessory chromosomes
     //
     if (!params.skip_preprocessing) {
-        input_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam, bai) }
+        input_ch = ch_samplesheet.map { meta, bam, _rds, _fusion_tsv -> tuple(meta, bam) }
         PREPROCESS_READS(input_ch, params.filter_reads, params.filter_acc_reads)
         rc_ch = PREPROCESS_READS.out.reads
         bam_ch = PREPROCESS_READS.out.bam
         ch_versions = ch_versions.mix(PREPROCESS_READS.out.versions)
     }
     else {
-        rc_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, rds) }
-        bam_ch = ch_samplesheet.map { meta, bam, bai, rds, fusion_fa, fusion_table -> tuple(meta, bam) }
+        rc_ch = ch_samplesheet.map { meta, _bam, rds, _fusion_tsv -> tuple(meta, rds) }
+        bam_ch = ch_samplesheet.map { meta, bam, _rds, _fusion_tsv -> tuple(meta, bam) }
     }
     // perform assembly & quantification with bambu
     // make an NDR channel
@@ -60,20 +61,12 @@ workflow PROTEOMEGENERATOR3 {
     }
     ref_gtf_ch = channel.of(params.gtf)
     // run sample assembly & quant with read classes
-    // if we have fusions, we need to run single sample mode
-    if (params.fusions == true) {
-        single_sample = true
-        println("Fusions detected; switching to single sample mode")
-    }
-    else {
-        single_sample = params.single_sample
-    }
     // count samples to make sure multisample isn't run on single samples
     sample_count = countSamples(params.input)
     // run assembly and quant with bambu
     ASSEMBLY_QUANT(
         rc_ch,
-        single_sample,
+        params.skip_multisample,
         sample_count,
         ch_NDR,
         ref_gtf_ch,
@@ -84,46 +77,62 @@ workflow PROTEOMEGENERATOR3 {
     ch_fasta = Channel.empty()
     GFFREAD(ASSEMBLY_QUANT.out.gtf, params.fasta)
     ch_versions = ch_versions.mix(GFFREAD.out.versions)
-    if (params.fusions == true) {
-        // use this obnoxious method to make a fusion channel
-        fusion_ch = ch_samplesheet
-            .map { meta, bam, bai, rds, fusion_fa, fusion_table ->
-                tuple(meta, fusion_fa, fusion_table)
-            }
-            .combine(ch_NDR)
-            .map { meta, fusion_fa, fusion_table, NDR ->
-                def new_meta = meta.clone()
-                new_meta.NDR = NDR
-                return [new_meta, fusion_fa, fusion_table]
-            }
-        fusion_ch.view()
-        fusion_fasta_ch = fusion_ch.map { meta, fusion_fa, fusion_table ->
-            tuple(meta, fusion_fa)
-        }
-        // concatenate fastas
-        CAT_CAT(
-            GFFREAD.out.gffread_fasta.join(fusion_fasta_ch).map { meta, fasta, fasta1 ->
-                tuple(meta, [fasta, fasta1])
-            }
-        )
-        ch_fasta = CAT_CAT.out.file_out
-        ch_versions = ch_versions.mix(CAT_CAT.out.versions)
-        orf_ch = ch_fasta.join(
-            fusion_ch.map { meta, fusion_fa, fusion_table ->
-                tuple(meta, fusion_table)
-            }
-        )
-        orf_ch.view()
-    }
-    else {
-        // empty value for fusion table
-        orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
-            tuple(meta, fasta, [])
-        }
-    }
+    // if (params.fusions == true) {
+    //     // use this obnoxious method to make a fusion channel
+    //     fusion_ch = ch_samplesheet
+    //         .map { meta, bam, rds, fusion_fa, fusion_table ->
+    //             tuple(meta, fusion_fa, fusion_table)
+    //         }
+    //         .combine(ch_NDR)
+    //         .map { meta, fusion_fa, fusion_table, NDR ->
+    //             def new_meta = meta.clone()
+    //             new_meta.NDR = NDR
+    //             return [new_meta, fusion_fa, fusion_table]
+    //         }
+    //     fusion_ch.view()
+    //     fusion_fasta_ch = fusion_ch.map { meta, fusion_fa, fusion_table ->
+    //         tuple(meta, fusion_fa)
+    //     }
+    //     // concatenate fastas
+    //     CAT_CAT(
+    //         GFFREAD.out.gffread_fasta.join(fusion_fasta_ch).map { meta, fasta, fasta1 ->
+    //             tuple(meta, [fasta, fasta1])
+    //         }
+    //     )
+    //     ch_fasta = CAT_CAT.out.file_out
+    //     ch_versions = ch_versions.mix(CAT_CAT.out.versions)
+    //     orf_ch = ch_fasta.join(
+    //         fusion_ch.map { meta, fusion_fa, fusion_table ->
+    //             tuple(meta, fusion_table)
+    //         }
+    //     )
+    //     orf_ch.view()
+    // }
+    // else {
+    //     // empty value for fusion table
+    //     orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
+    //         tuple(meta, fasta, [])
+    //     }
+    // }
+    // // empty value for fusion table
+    // orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
+    //     tuple(meta, fasta, [])
+    // }
     // predict ORFs with transdecoder and output fasta for msfragger
-    PREDICT_ORFS(orf_ch, params.fusions)
+    PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.uniprot_proteome)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
+    // make uniprot-style fasta for msfragger and create index tables
+    ch_orfs = PREDICT_ORFS.out.ORFs
+        .join(ASSEMBLY_QUANT.out.gtf, by: 0)
+        .combine(PREDICT_ORFS.out.swissprot.map { _meta, fasta -> fasta })
+    FASTA_MERGE_ANNOTATE(
+        ch_orfs,
+        params.input,
+        params.skip_multisample,
+        PREDICT_ORFS.out.swissprot,
+        ch_samplesheet,
+    )
+    ch_versions = ch_versions.mix(FASTA_MERGE_ANNOTATE.out.versions)
     // collect versions
     softwareVersionsToYAML(ch_versions)
         .collectFile(
@@ -195,6 +204,8 @@ workflow PROTEOMEGENERATOR3 {
 def countSamples(input) {
     def lines = file(input).readLines()
     def sample_count = lines.size() - 1
-    println("1 sample detected; switching to single sample mode")
+    if (sample_count == 1) {
+        println("1 sample detected; switching to single sample mode")
+    }
     return sample_count
 }

@@ -3,19 +3,18 @@
 include { BAMBU_ASSEMBLY as BAMBU             } from '../../../modules/local/bambu/assembly/main'
 include { BAMBU_ASSEMBLY as BAMBU_MERGE       } from '../../../modules/local/bambu/assembly/main'
 include { BAMBU_ASSEMBLY as BAMBU_MERGE_QUANT } from '../../../modules/local/bambu/assembly/main'
-include { BAMBU_ASSEMBLY as BAMBU_QUANT       } from '../../../modules/local/bambu/assembly/main'
 include { SEMERGE                             } from '../../../modules/local/semerge/main'
 include { SEMERGE as SEQUANT_MERGE            } from '../../../modules/local/semerge/main'
 include { BAMBU_FILTER                        } from '../../../modules/local/bambu/filter/main'
 
 workflow ASSEMBLY_QUANT {
     take:
-    rc_ch         // channel: [val(meta), reads]
-    single_sample // val
-    sample_count  // val
-    ch_NDR        // channel []
+    rc_ch // channel: [val(meta), reads]
+    skip_multisample // val
+    sample_count // val
+    ch_NDR // channel []
     ref_gtf_ch
-    bam_ch        // channel: [ val(meta), [ bam ] ]
+    bam_ch // channel: [ val(meta), [ bam ] ]
 
     main:
 
@@ -31,7 +30,7 @@ workflow ASSEMBLY_QUANT {
         return [new_meta, rds]
     }
 
-    if (single_sample || sample_count == 1) {
+    if (skip_multisample || sample_count == 1) {
         // combine read classes and NDR channels
         bambu_input_ch = rc_ch
             .combine(ch_NDR)
