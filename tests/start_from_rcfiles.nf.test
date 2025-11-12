@@ -1,0 +1,25 @@
+nextflow_pipeline {
+
+    name "Test pipeline"
+    script "../main.nf"
+    tag "pipeline"
+
+    test("Test full proteomegenerator3 pipeline") {
+
+        when {
+            params {
+                input = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/samplesheet_multisample.csv'
+                // Genome references
+                fasta = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/reference/Homo_sapiens.GRCh38.dna_sm.primary_assembly_chr9_1_1000000.fa'
+                gtf = 'https://raw.githubusercontent.com/apsteinberg/test-datasets/refs/heads/proteomegenerator3/reference/Homo_sapiens.GRCh38.91_chr9_1_1000000.gtf'
+                // skip preprocessing
+                skip_preprocessing = true
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            assert workflow.success
+        }
+    }
+}
