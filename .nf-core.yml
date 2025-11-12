@@ -35,7 +35,3 @@ template:
   force: true
   outdir: .
   is_nfcore: false
-
-download:
-  skip_container_check:
-    - diamond/blastp
