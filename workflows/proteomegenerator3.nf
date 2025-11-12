@@ -130,6 +130,7 @@ workflow PROTEOMEGENERATOR3 {
         params.input,
         params.skip_multisample,
         PREDICT_ORFS.out.swissprot,
+        ch_samplesheet,
     )
     ch_versions = ch_versions.mix(FASTA_MERGE_ANNOTATE.out.versions)
     // collect versions
