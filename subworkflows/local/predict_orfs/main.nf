@@ -37,7 +37,7 @@ workflow PREDICT_ORFS {
         [],
     )
     ch_versions = ch_versions.mix(DIAMOND_BLASTP.out.versions)
-    // join the fasta channel with blast results
+    // join the cdna fasta with diamondblast and longorfs results
     input_predict_ch = fasta_ch
         .join(DIAMOND_BLASTP.out.txt)
         .join(TRANSDECODER_LONGORF.out.folder)
