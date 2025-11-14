@@ -31,7 +31,7 @@ template:
   name: proteomegenerator3
   description: run Bambu for ONT transcript assembly
   author: Asher Preska Steinberg
-  version: 1.1.1dev
+  version: 1.1.1
   force: true
   outdir: .
   is_nfcore: false
