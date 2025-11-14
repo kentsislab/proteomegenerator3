@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2025-11-14
 
+## Changed
+
+- `ci.yml` updated with sharding and disk cleanup
+
 ### Fixed
 
 - Fixed bug in transdecoder modules preventing correct processing of multiple samples simultaneously (moved transdecoder/longorf to local module and corrected input tuple structure in transdecoder/predict to properly pass folder parameter)
