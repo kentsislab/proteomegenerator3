@@ -11,8 +11,7 @@ process TRANSDECODER_PREDICT {
         : 'biocontainers/transdecoder:5.7.1--pl5321hdfd78af_0'}"
 
     input:
-    tuple val(meta), path(fasta), path(blastp_hits)
-    path fold
+    tuple val(meta), path(fasta), path(blastp_hits), path(fold)
 
     output:
     tuple val(meta), path("*.transdecoder.pep"), emit: pep

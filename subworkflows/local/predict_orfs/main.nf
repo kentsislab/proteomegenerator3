@@ -2,7 +2,7 @@
 include { PHILOSOPHER_DATABASE } from '../../../modules/local/philosopher/database/main'
 include { DIAMOND_MAKEDB       } from '../../../modules/nf-core/diamond/makedb/main'
 include { DIAMOND_BLASTP       } from '../../../modules/nf-core/diamond/blastp/main'
-include { TRANSDECODER_LONGORF } from '../../../modules/nf-core/transdecoder/longorf/main'
+include { TRANSDECODER_LONGORF } from '../../../modules/local/transdecoder/longorf/main'
 include { TRANSDECODER_PREDICT } from '../../../modules/local/transdecoder/predict/main'
 include { WRITEFASTA           } from '../../../modules/local/writefasta/main'
 include { TRANSDECODER2FASTA   } from '../../../modules/local/transdecoder2fasta/main'
@@ -37,10 +37,12 @@ workflow PREDICT_ORFS {
         [],
     )
     ch_versions = ch_versions.mix(DIAMOND_BLASTP.out.versions)
-    // join the fasta channel with blast results
-    input_predict_ch = fasta_ch.join(DIAMOND_BLASTP.out.txt)
+    // join the cdna fasta with diamondblast and longorfs results
+    input_predict_ch = fasta_ch
+        .join(DIAMOND_BLASTP.out.txt)
+        .join(TRANSDECODER_LONGORF.out.folder)
     // input_predict_ch.view()
-    TRANSDECODER_PREDICT(input_predict_ch, TRANSDECODER_LONGORF.out.folder)
+    TRANSDECODER_PREDICT(input_predict_ch)
     ch_versions = ch_versions.mix(TRANSDECODER_PREDICT.out.versions)
 
     emit:

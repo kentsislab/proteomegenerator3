@@ -77,47 +77,6 @@ workflow PROTEOMEGENERATOR3 {
     ch_fasta = Channel.empty()
     GFFREAD(ASSEMBLY_QUANT.out.gtf, params.fasta)
     ch_versions = ch_versions.mix(GFFREAD.out.versions)
-    // if (params.fusions == true) {
-    //     // use this obnoxious method to make a fusion channel
-    //     fusion_ch = ch_samplesheet
-    //         .map { meta, bam, rds, fusion_fa, fusion_table ->
-    //             tuple(meta, fusion_fa, fusion_table)
-    //         }
-    //         .combine(ch_NDR)
-    //         .map { meta, fusion_fa, fusion_table, NDR ->
-    //             def new_meta = meta.clone()
-    //             new_meta.NDR = NDR
-    //             return [new_meta, fusion_fa, fusion_table]
-    //         }
-    //     fusion_ch.view()
-    //     fusion_fasta_ch = fusion_ch.map { meta, fusion_fa, fusion_table ->
-    //         tuple(meta, fusion_fa)
-    //     }
-    //     // concatenate fastas
-    //     CAT_CAT(
-    //         GFFREAD.out.gffread_fasta.join(fusion_fasta_ch).map { meta, fasta, fasta1 ->
-    //             tuple(meta, [fasta, fasta1])
-    //         }
-    //     )
-    //     ch_fasta = CAT_CAT.out.file_out
-    //     ch_versions = ch_versions.mix(CAT_CAT.out.versions)
-    //     orf_ch = ch_fasta.join(
-    //         fusion_ch.map { meta, fusion_fa, fusion_table ->
-    //             tuple(meta, fusion_table)
-    //         }
-    //     )
-    //     orf_ch.view()
-    // }
-    // else {
-    //     // empty value for fusion table
-    //     orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
-    //         tuple(meta, fasta, [])
-    //     }
-    // }
-    // // empty value for fusion table
-    // orf_ch = GFFREAD.out.gffread_fasta.map { meta, fasta ->
-    //     tuple(meta, fasta, [])
-    // }
     // predict ORFs with transdecoder and output fasta for msfragger
     PREDICT_ORFS(GFFREAD.out.gffread_fasta, params.uniprot_proteome)
     ch_versions = ch_versions.mix(PREDICT_ORFS.out.versions)
