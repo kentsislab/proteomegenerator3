@@ -40,5 +40,5 @@ jobs:
           wget -qO- https://get.nf-test.com | bash
           sudo mv nf-test /usr/local/bin/
 
-      - name: Run Tests (Shard ${{ matrix.shard }}/${{ strategy.job-total }})
-        run: nf-test test --profile test,docker --ci --shard ${{ matrix.shard }}/${{ strategy.job-total }} --verbose
+      - name: Run Tests
+        run: nf-test test --profile test,docker --ci --verbose
